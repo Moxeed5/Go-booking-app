@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+	"time"
+)
 
+//sync pacakage is related to concurrensy. Contains Wait method that has add, wait, and done.
 //declaring these vars with package scope
 //before when we created funcs outside of main, we created new vars as params for the funcs and our func logic reference the vars from the params
 //now with global scope we can just use these vars directly instead of passing them into funcs as params. For example, below is the old code for
@@ -32,13 +37,15 @@ type UserData struct {
 	numberOfTickets uint
 }
 
+var wg = sync.WaitGroup{}
+
 func main() {
 
 	greetUsers()
 	
 	// %t rather than %v will print the var type in a fmt.Printf("") statement. It will literally return string, int, etc. 
 
-	for {
+	
 		
 		//fmt.scan needs a pointer signified by & infront of the variable that is going to return a value to. 
 		//it returns the value directly to the var so you need to have the var declared before you use scan. 
@@ -60,14 +67,16 @@ func main() {
 
 		if isValidName && isValidEmail && isValidTickets{
 			
+			wg.Add(1)
 			bookTickets(userTickets, firstName, lastName, email)
+			go sendTicket(userTickets, firstName, lastName, email) //go keyword enables concurrensy. We have a time delay of 10 seconds within this function. 
+			//go keyword enables the rest of the program to continue forward while we wait on the 10 second timer of the function.
 
 			names := getFirstnames()
 			fmt.Printf("The first names of all in attendence so far: %v\n", names)
 
 			if remainingTickets == 0 {
 				fmt.Println("Conference is full. No tickets available.")
-				break
 			}
 
 		} else {
@@ -80,11 +89,10 @@ func main() {
 			if !isValidTickets {
 				fmt.Printf("%v is not a valid option for tickets. Ticket selection must be under %v.\n", userTickets, remainingTickets)
 			}
-
-			
-			continue
 		}
-	}
+	wg.Wait()
+
+	
 }
 
 func greetUsers() {
@@ -126,7 +134,16 @@ func bookTickets(userTickets uint, firstName string, lastName string, email stri
 	fmt.Printf("List of bookings: %v\n", bookings)
 
 	fmt.Printf("Thanks for your order %v %v, you will receive %v tickets in your email: %v\n", firstName, lastName, userTickets, email)
-	fmt.Printf("%v tickets remaining for %v", remainingTickets, conferenceName)
+	fmt.Printf("%v tickets remaining for %v\n", remainingTickets, conferenceName)
+}
+
+func sendTicket(userTickets uint, firstName string, lastname string, email string) {
+	time.Sleep(10* time.Second)
+	var ticket = fmt.Sprintf("%v tickets for %v %v\n", userTickets, firstName, lastname)
+	fmt.Println("################################")
+	fmt.Printf("Sending ticket:\n %v to email address: %v \n", ticket, email)
+	fmt.Println("################################")
+	wg.Done()
 }
 
 func calculateRemainingTickets(remainingTickets uint, userTickets uint) uint {
