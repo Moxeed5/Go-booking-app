@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"strconv"
-)
+import "fmt"
 
 //declaring these vars with package scope
 //before when we created funcs outside of main, we created new vars as params for the funcs and our func logic reference the vars from the params
@@ -22,12 +19,23 @@ var conferenceName string = "Go Conference"
 const conferenceTickets int = 50
 var totalTickets = 50
 var remainingTickets uint = 50
-var bookings = make([]map[string]string, 0)
+//var bookings = make([]map[string]string, 0) //before we made a slice of type map, we had a slice of type string. We imported package Strings to use Fields method.
+//The method signature for Fields is func Fields(s string) []string. It's used for splitting a string into a substring based on white spaces and obviously returns a 
+//..string slice with each substring as an individual element. Useful for splitting a string sentence into a string slice of each word from the sentence. 
+
+var bookings = make([]UserData, 0)
+
+type UserData struct {
+	firstName string
+	lastName string
+	email string
+	numberOfTickets uint
+}
 
 func main() {
 
 	greetUsers()
-
+	
 	// %t rather than %v will print the var type in a fmt.Printf("") statement. It will literally return string, int, etc. 
 
 	for {
@@ -86,10 +94,11 @@ func greetUsers() {
 }
 
 //below we use "_" rather than "index". Index returns the index # and we don't need that. So we just use "_" as a placeholder. can't leave it blank.
+//booking is item and bookings is slice. each booking in bookings
 func getFirstnames() []string {
 	firstNames := []string{}
 	for _, booking := range bookings {
-		firstNames = append(firstNames, booking["firstname"])
+		firstNames = append(firstNames, booking.firstName)
 	}
 	return firstNames
 }
@@ -101,11 +110,17 @@ func bookTickets(userTickets uint, firstName string, lastName string, email stri
 
 	
 
-	var userData = make(map[string]string)
-	userData["firstName"] = firstName
-	userData["lastName"] = lastName
-	userData["email"] = email
-	userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10)
+	var userData = UserData {
+		firstName: firstName,
+		lastName:  lastName,
+		email: email,
+		numberOfTickets: userTickets,
+	}
+	//below we were setting key values pairs for our userData map. Above we are setting the fields in our UserData struct
+	// userData["firstName"] = firstName
+	// userData["lastName"] = lastName
+	// userData["email"] = email
+	// userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10)
 
 	bookings = append(bookings, userData)
 	fmt.Printf("List of bookings: %v\n", bookings)
