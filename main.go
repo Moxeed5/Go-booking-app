@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"strconv"
 )
 
 //declaring these vars with package scope
@@ -22,7 +22,7 @@ var conferenceName string = "Go Conference"
 const conferenceTickets int = 50
 var totalTickets = 50
 var remainingTickets uint = 50
-var bookings = []string{}
+var bookings = make([]map[string]string, 0)
 
 func main() {
 
@@ -51,13 +51,8 @@ func main() {
 		isValidName, isValidEmail, isValidTickets := validateUserInput(firstName, lastName, email, userTickets)
 
 		if isValidName && isValidEmail && isValidTickets{
-		
-			remainingTickets = calculateRemainingTickets(remainingTickets, userTickets)
-
-			bookings = append(bookings, firstName+" "+lastName)
-
 			
-			orderConfirmation(firstName, userTickets, email)
+			bookTickets(userTickets, firstName, lastName, email)
 
 			names := getFirstnames()
 			fmt.Printf("The first names of all in attendence so far: %v\n", names)
@@ -94,14 +89,29 @@ func greetUsers() {
 func getFirstnames() []string {
 	firstNames := []string{}
 	for _, booking := range bookings {
-		names := strings.Fields(booking)
-		firstNames = append(firstNames, names[0])
+		firstNames = append(firstNames, booking["firstname"])
 	}
 	return firstNames
 }
 
-func orderConfirmation(name string, tickets uint, email string) {
-	fmt.Printf("Thanks for your order %v, you will receive %v tickets in your email: %v\n", name, tickets, email)
+func bookTickets(userTickets uint, firstName string, lastName string, email string) {
+
+	remainingTickets = remainingTickets - userTickets
+	//create a map for a user, we will store multiple maps in a slice. Each map represents a specific user's total data
+
+	
+
+	var userData = make(map[string]string)
+	userData["firstName"] = firstName
+	userData["lastName"] = lastName
+	userData["email"] = email
+	userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10)
+
+	bookings = append(bookings, userData)
+	fmt.Printf("List of bookings: %v\n", bookings)
+
+	fmt.Printf("Thanks for your order %v %v, you will receive %v tickets in your email: %v\n", firstName, lastName, userTickets, email)
+	fmt.Printf("%v tickets remaining for %v", remainingTickets, conferenceName)
 }
 
 func calculateRemainingTickets(remainingTickets uint, userTickets uint) uint {
