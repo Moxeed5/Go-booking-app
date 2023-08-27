@@ -5,23 +5,30 @@ import (
 	"strings"
 )
 
+//declaring these vars with package scope
+//before when we created funcs outside of main, we created new vars as params for the funcs and our func logic reference the vars from the params
+//now with global scope we can just use these vars directly instead of passing them into funcs as params. For example, below is the old code for
+//...the greet users function and we called it in main like this: greetUsers(conferenceName, totalTickets, remainingTickets)
+
+/*
+func greetUsers(conName string, totalTix int, remainingTix uint) {
+	fmt.Printf("Welcome to the %v booking application\n", conName)
+	fmt.Printf("Total tickets available: %v & Remaining tickets available: %v \n", totalTix, remainingTix)
+	fmt.Println("Get your tickets here to attend")
+}
+
+*/
+var conferenceName string = "Go Conference"
+const conferenceTickets int = 50
+var totalTickets = 50
+var remainingTickets uint = 50
+var bookings = []string{}
 
 func main() {
 
-	
-	
-	conferenceName := "Go Conference"
-	const conferenceTickets int = 50
-	var totalTickets = 50
-	var remainingTickets uint = 50
-	bookings := []string{}
+	greetUsers()
 
-	greetUsers(conferenceName, totalTickets, remainingTickets)
-
-	// fmt.Printf("conferenceTickets is %T, remainingTickets is %T, conferenceName is %T\n", conferenceTickets, remainingTickets, conferenceName)
-
-	
-	
+	// %t rather than %v will print the var type in a fmt.Printf("") statement. It will literally return string, int, etc. 
 
 	for {
 		
@@ -41,7 +48,7 @@ func main() {
 
 		//isValidCity := strings.EqualFold("Singapore", city) || strings.EqualFold(city, "London")
 
-		isValidName, isValidEmail, isValidTickets := validateUserInput(firstName, lastName, email, userTickets, remainingTickets)
+		isValidName, isValidEmail, isValidTickets := validateUserInput(firstName, lastName, email, userTickets)
 
 		if isValidName && isValidEmail && isValidTickets{
 		
@@ -52,8 +59,8 @@ func main() {
 			
 			orderConfirmation(firstName, userTickets, email)
 
-			names := getFirstnames(bookings)
-			fmt.Printf("The first names of all in attendence so far: %v", names)
+			names := getFirstnames()
+			fmt.Printf("The first names of all in attendence so far: %v\n", names)
 
 			if remainingTickets == 0 {
 				fmt.Println("Conference is full. No tickets available.")
@@ -77,13 +84,14 @@ func main() {
 	}
 }
 
-func greetUsers(conName string, totalTix int, remainingTix uint) {
-	fmt.Printf("Welcome to the %v booking application\n", conName)
-	fmt.Printf("Total tickets available: %v & Remaining tickets available: %v \n", totalTix, remainingTix)
+func greetUsers() {
+	fmt.Printf("Welcome to the %v booking application\n", conferenceName)
+	fmt.Printf("Total tickets available: %v & Remaining tickets available: %v \n", totalTickets, remainingTickets)
 	fmt.Println("Get your tickets here to attend")
 }
 
-func getFirstnames(bookings []string) []string {
+//below we use "_" rather than "index". Index returns the index # and we don't need that. So we just use "_" as a placeholder. can't leave it blank.
+func getFirstnames() []string {
 	firstNames := []string{}
 	for _, booking := range bookings {
 		names := strings.Fields(booking)
@@ -96,18 +104,12 @@ func orderConfirmation(name string, tickets uint, email string) {
 	fmt.Printf("Thanks for your order %v, you will receive %v tickets in your email: %v\n", name, tickets, email)
 }
 
-func calculateRemainingTickets (remainingTickets uint, userTickets uint) uint {
+func calculateRemainingTickets(remainingTickets uint, userTickets uint) uint {
 	remainingTickets -= userTickets
 	return remainingTickets
 }
 
-func validateUserInput(firstName string, lastName string, email string, userTickets uint, remainingTickets uint) (bool, bool, bool) {
-		isValidName := len(firstName) >= 2 && len(lastName) >=2
-		isValidEmail := strings.Contains(email,"@") && strings.Contains(email,".") 
-		isValidTickets := userTickets >=1 && userTickets <= remainingTickets
 
-		return isValidName, isValidEmail, isValidTickets
-}
 
 func getUserInput() (string, string, string, uint) {
 	//we have to declare these vars within the function. We don't want them as params because we want the user to enter them in
@@ -115,7 +117,7 @@ func getUserInput() (string, string, string, uint) {
 	//...the scan result is stored in local func vars (lastName, email, etc) and the values within the vars are returned. 
 	//hence the (string, string...) return types in the func delcaration. in main we just declare multiple vars to capature return vals
 	//I explain more of this in main
-	
+
 	var firstName string
 		var lastName string
 		var email string
